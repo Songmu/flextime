@@ -22,6 +22,10 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 
 		expect = expect.Add(interval)
 		almostSameTime(t, <-ch, expect)
+
+		if flextime.Tick(-1) != nil {
+			t.Errorf("Tick with negative value should return nil but not")
+		}
 	})
 
 	restore := fn(baseDate)
@@ -123,6 +127,11 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 			expect = expect.Add(after)
 			got := <-ti.C
 			almostSameTime(t, got, expect)
+
+			// A negative or zero duration return immediately
+			ti.Reset(-after)
+			got = <-ti.C
+			almostSameTime(t, got, expect)
 		})
 
 		t.Run("Stop", func(t *testing.T) {
@@ -139,7 +148,7 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 		almostSameTime(t, <-ti.C, expect)
 		ti.Stop()
 		select {
-		case expect = <-ti.C:
+		case <-ti.C:
 		default:
 		}
 	})
