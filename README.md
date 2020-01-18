@@ -51,6 +51,16 @@ it with the Switch function.
 % go get github.com/Songmu/flextime
 ```
 
+## Migration
+
+You can almost migrate from standard time package to Songmu/flextime with the following command.
+
+```console
+% go get github.com/Songmu/flextime
+% find . -name '*.go' | xargs perl -i -pe 's/\btime\.((?:N(?:ewTi(?:ck|m)er|ow)|After(?:Func)?|Sleep|Until|Tick))/flextime.$1/g'
+% goimport -w .
+```
+
 ## Author
 
 [Songmu](https://github.com/Songmu)
