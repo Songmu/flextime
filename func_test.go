@@ -74,12 +74,12 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 		}
 		var blocked bool
 		select {
-		case <-ti.C():
+		case <-ti.C:
 		default:
 			blocked = true
 		}
 		if !blocked {
-			t.Errorf("Timer.C() with AfterFunc should be blocked")
+			t.Errorf("Timer.C with AfterFunc should be blocked")
 		}
 
 		t.Run("Reset", func(t *testing.T) {
@@ -104,24 +104,24 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 		after := 4 * time.Second
 		ti := flextime.NewTimer(after)
 		expect = expect.Add(after)
-		got := <-ti.C()
+		got := <-ti.C
 		almostSameTime(t, got, expect)
 
 		var blocked bool
 		select {
-		case <-ti.C():
+		case <-ti.C:
 		default:
 			blocked = true
 		}
 		if !blocked {
-			t.Errorf("drained Timer.C() should be blocked")
+			t.Errorf("drained Timer.C should be blocked")
 		}
 
 		t.Run("Reset", func(t *testing.T) {
 			after := 6 * time.Second
 			ti.Reset(after)
 			expect = expect.Add(after)
-			got := <-ti.C()
+			got := <-ti.C
 			almostSameTime(t, got, expect)
 		})
 
@@ -136,10 +136,10 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 		interval := 11 * time.Second
 		ti := flextime.NewTicker(interval)
 		expect = expect.Add(interval)
-		almostSameTime(t, <-ti.C(), expect)
+		almostSameTime(t, <-ti.C, expect)
 		ti.Stop()
 		select {
-		case expect = <-ti.C():
+		case expect = <-ti.C:
 		default:
 		}
 	})
@@ -176,9 +176,9 @@ func TestFix_NewTicker_withSleep(t *testing.T) {
 	ti := flextime.NewTicker(interval)
 	sleep := 25 * time.Second
 	flextime.Sleep(sleep)
-	almostSameTime(t, <-ti.C(), expect.Add(interval))
+	almostSameTime(t, <-ti.C, expect.Add(interval))
 	expect = expect.Add(3 * interval) // 11x3 keep base time
-	almostSameTime(t, <-ti.C(), expect)
+	almostSameTime(t, <-ti.C, expect)
 }
 
 func TestFix_fix(t *testing.T) {

@@ -20,7 +20,7 @@ type fakeTimer struct {
 	triggerAt  time.Time
 }
 
-var _ Timer = (*fakeTimer)(nil)
+var _ timerIface = (*fakeTimer)(nil)
 
 func newFakeTimer(c NowSleeper, d time.Duration, f func()) *fakeTimer {
 	fti := &fakeTimer{

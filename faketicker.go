@@ -7,7 +7,7 @@ import (
 )
 
 type fakeTicker struct {
-	Timer Timer
+	Timer timerIface
 	Dur   time.Duration
 
 	ch   chan time.Time
@@ -15,18 +15,18 @@ type fakeTicker struct {
 	done chan struct{}
 }
 
-var _ Ticker = (*fakeTicker)(nil)
+var _ tickerIface = (*fakeTicker)(nil)
 
-func newFakeTicker(t Timer, d time.Duration) Ticker {
+func newFakeTicker(t timerIface, d time.Duration) *Ticker {
 	if d <= 0 {
 		panic(errors.New("non-positive interval for NewTicker"))
 	}
-	return &fakeTicker{
+	return createTicker(&fakeTicker{
 		Timer: t,
 		Dur:   d,
 		ch:    make(chan time.Time),
 		done:  make(chan struct{}),
-	}
+	})
 }
 
 func (ftick *fakeTicker) C() <-chan time.Time {

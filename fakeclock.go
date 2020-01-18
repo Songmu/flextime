@@ -38,26 +38,26 @@ func (fc *fakeClock) Until(t time.Time) time.Duration {
 }
 
 func (fc *fakeClock) After(d time.Duration) <-chan time.Time {
-	return fc.NewTimer(d).C()
+	return fc.NewTimer(d).C
 }
 
-func (fc *fakeClock) AfterFunc(d time.Duration, f func()) Timer {
-	return newFakeTimer(fc.ns, d, f)
+func (fc *fakeClock) AfterFunc(d time.Duration, f func()) *Timer {
+	return createTimer(newFakeTimer(fc.ns, d, f))
 }
 
-func (fc *fakeClock) NewTicker(d time.Duration) Ticker {
+func (fc *fakeClock) NewTicker(d time.Duration) *Ticker {
 	ti := newFakeTimer(fc.ns, d, nil)
 	ti.IsTicker = true
 	return newFakeTicker(ti, d)
 }
 
-func (fc *fakeClock) NewTimer(d time.Duration) Timer {
-	return newFakeTimer(fc.ns, d, nil)
+func (fc *fakeClock) NewTimer(d time.Duration) *Timer {
+	return createTimer(newFakeTimer(fc.ns, d, nil))
 }
 
 func (fc *fakeClock) Tick(d time.Duration) <-chan time.Time {
 	if d <= 0 {
 		return nil
 	}
-	return fc.NewTicker(d).C()
+	return fc.NewTicker(d).C
 }

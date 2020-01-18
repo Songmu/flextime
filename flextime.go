@@ -58,19 +58,19 @@ func After(d time.Duration) <-chan time.Time {
 
 // AfterFunc waits for the duration to elapse and then calls f in its own goroutine using
 // backend Clock. It returns a Timer that can be used to cancel the call using its Stop method.
-func AfterFunc(d time.Duration, f func()) Timer {
+func AfterFunc(d time.Duration, f func()) *Timer {
 	return getBackend().AfterFunc(d, f)
 }
 
 // NewTimer creates a new Timer that will send the current time on its channel after at
 // least duration d using backend Clock.
-func NewTimer(d time.Duration) Timer {
+func NewTimer(d time.Duration) *Timer {
 	return getBackend().NewTimer(d)
 }
 
 // NewTicker returns a new Ticker containing a channel that will send the time with a period
 // specified by the duration argument using backend Clock.
-func NewTicker(d time.Duration) Ticker {
+func NewTicker(d time.Duration) *Ticker {
 	return getBackend().NewTicker(d)
 }
 

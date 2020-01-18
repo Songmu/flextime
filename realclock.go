@@ -23,26 +23,26 @@ func (clock *realClock) Sleep(d time.Duration) {
 }
 
 func (clock *realClock) After(d time.Duration) <-chan time.Time {
-	return clock.NewTimer(d).C()
+	return clock.NewTimer(d).C
 }
 
-func (clock *realClock) AfterFunc(d time.Duration, f func()) Timer {
+func (clock *realClock) AfterFunc(d time.Duration, f func()) *Timer {
 	t := time.AfterFunc(d, f)
-	return &realTimer{
+	return createTimer(&realTimer{
 		t: t,
-	}
+	})
 }
 
-func (clock *realClock) NewTimer(d time.Duration) Timer {
-	return &realTimer{
+func (clock *realClock) NewTimer(d time.Duration) *Timer {
+	return createTimer(&realTimer{
 		t: time.NewTimer(d),
-	}
+	})
 }
 
-func (clock *realClock) NewTicker(d time.Duration) Ticker {
-	return &realTicker{
+func (clock *realClock) NewTicker(d time.Duration) *Ticker {
+	return createTicker(&realTicker{
 		t: time.NewTicker(d),
-	}
+	})
 }
 
 func (clock *realClock) Tick(d time.Duration) <-chan time.Time {
