@@ -22,6 +22,10 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 
 		expect = expect.Add(interval)
 		almostSameTime(t, <-ch, expect)
+
+		if flextime.Tick(-1) != nil {
+			t.Errorf("Tick with negative value should return nil but not")
+		}
 	})
 
 	restore := fn(baseDate)
@@ -123,6 +127,11 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 			expect = expect.Add(after)
 			got := <-ti.C
 			almostSameTime(t, got, expect)
+
+			// A negative or zero duration return immediately
+			ti.Reset(-after)
+			got = <-ti.C
+			almostSameTime(t, got, expect)
 		})
 
 		t.Run("Stop", func(t *testing.T) {
@@ -139,7 +148,7 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 		almostSameTime(t, <-ti.C, expect)
 		ti.Stop()
 		select {
-		case expect = <-ti.C:
+		case <-ti.C:
 		default:
 		}
 	})
@@ -152,9 +161,13 @@ func almostSameDuration(t *testing.T, g, e time.Duration) {
 	}
 }
 
+func almostSame(g, e time.Time) bool {
+	return g.Unix() != e.Unix() || g.Location().String() != e.Location().String()
+}
+
 func almostSameTime(t *testing.T, g, e time.Time) {
 	t.Helper()
-	if g.Unix() != e.Unix() || g.Location().String() != e.Location().String() {
+	if almostSame(g, e) {
 		t.Errorf("got: %s, expect: %s", g, e)
 	}
 }
@@ -178,7 +191,11 @@ func TestFix_NewTicker_withSleep(t *testing.T) {
 	flextime.Sleep(sleep)
 	almostSameTime(t, <-ti.C, expect.Add(interval))
 	expect = expect.Add(3 * interval) // 11x3 keep base time
-	almostSameTime(t, <-ti.C, expect)
+	expect2 := expect.Add(interval)
+	got := <-ti.C
+	if !almostSame(got, expect) && !almostSame(got, expect2) {
+		t.Errorf("got: %s, expect: %s", got, expect)
+	}
 }
 
 func TestFix_fix(t *testing.T) {

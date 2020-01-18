@@ -19,6 +19,7 @@ var _ tickerIface = (*fakeTicker)(nil)
 
 func newFakeTicker(t timerIface, d time.Duration) *Ticker {
 	if d <= 0 {
+		// I don't want to panic, but the standard package is too.
 		panic(errors.New("non-positive interval for NewTicker"))
 	}
 	return createTicker(&fakeTicker{
