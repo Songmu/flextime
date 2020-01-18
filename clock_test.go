@@ -34,7 +34,7 @@ func TestClock_NewTimer(t *testing.T) {
 
 	var blocked bool
 	select {
-	case <-ti.C():
+	case <-ti.C:
 	default:
 		blocked = true
 	}
@@ -51,7 +51,7 @@ func TestClock_NewTimer(t *testing.T) {
 
 	select {
 	case <-time.After(60 * time.Millisecond):
-		t.Errorf("ti.C() should not be blocked but blocked")
-	case <-ti.C():
+		t.Errorf("ti.C should not be blocked but blocked")
+	case <-ti.C:
 	}
 }
