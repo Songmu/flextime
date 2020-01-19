@@ -13,7 +13,6 @@ type fakeTimer struct {
 
 	resetMu sync.Mutex
 
-	once       sync.Once
 	ch, inch   chan time.Time
 	active     int32
 	stop, done chan struct{}
@@ -42,19 +41,24 @@ func (fti *fakeTimer) C() <-chan time.Time {
 	return fti.ch
 }
 
+// The `send` is called only inside `Reset` and exclusive control is performed on the `Reset` side,
+// so the `send` itself need not do exclusive control.
 func (fti *fakeTimer) send() {
-	fti.once.Do(func() {
-		go func() {
-			for t := range fti.inch {
-				if fti.fun != nil {
-					go fti.fun()
-				} else {
-					fti.ch <- t
-				}
-			}
-		}()
-	})
+	fti.done = make(chan struct{})
 	atomic.StoreInt32(&fti.active, 1)
+
+	go func() {
+		select {
+		case t := <-fti.inch:
+			if fti.fun != nil {
+				go fti.fun()
+			} else {
+				fti.ch <- t
+			}
+		case <-fti.done:
+		}
+	}()
+
 	go func() {
 		select {
 		case fti.inch <- func() time.Time {
@@ -75,7 +79,6 @@ func (fti *fakeTimer) Reset(d time.Duration) bool {
 		d = 0
 	}
 	active := fti.Stop()
-	fti.done = make(chan struct{})
 	if fti.IsTicker && !fti.triggerAt.IsZero() {
 		// to keep base time
 		now := fti.T.Now()
