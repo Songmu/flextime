@@ -22,7 +22,7 @@ var _ timerIface = (*fakeTimer)(nil)
 func newFakeTimer(c NowSleeper, d time.Duration, f func()) *fakeTimer {
 	fti := &fakeTimer{
 		T:    c,
-		ch:   make(chan time.Time),
+		ch:   make(chan time.Time, 1),
 		inch: make(chan time.Time),
 		stop: make(chan struct{}, 1),
 		fun:  f,
@@ -96,13 +96,15 @@ func (fti *fakeTimer) Reset(d time.Duration) bool {
 }
 
 func (fti *fakeTimer) Stop() bool {
-	// XXX should be locked here?
 	active := fti.isActive()
+	// If multiple `Reset` are called concurrently, this termination process would run at the same time
+	// and it returns `true` for each call, but it is no problem because time.Timer of the standard package
+	// behaves like that.
 	if active {
 		fti.stop <- struct{}{}
 		<-fti.done
-		// The timer may be fired at the same timing as Stop. In that case, struct{}{} could accumulate in
-		// the channel, so draining it here.
+		// The Timer may be fired at the same timing as the Stop. Also, the multiple `Reset` may be called
+		// concurrently. In that case, `struct{}{}` could be accumulated in the channel, so drain it here.
 		select {
 		case <-fti.stop:
 		default:
