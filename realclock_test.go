@@ -131,7 +131,7 @@ func TestRealClock(t *testing.T) {
 	})
 
 	t.Run("NewTicker", func(t *testing.T) {
-		interval := time.Millisecond
+		interval := 10 * time.Millisecond
 		ti := flextime.NewTicker(interval)
 		almostNow(t, <-ti.C)
 		ti.Stop()
