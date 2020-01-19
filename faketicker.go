@@ -2,16 +2,13 @@ package flextime
 
 import (
 	"errors"
-	"sync"
 	"time"
 )
 
 type fakeTicker struct {
 	Timer timerIface
-	Dur   time.Duration
 
 	ch   chan time.Time
-	once sync.Once
 	done chan struct{}
 }
 
@@ -22,29 +19,27 @@ func newFakeTicker(t timerIface, d time.Duration) *Ticker {
 		// I don't want to panic, but the standard package is too.
 		panic(errors.New("non-positive interval for NewTicker"))
 	}
-	return createTicker(&fakeTicker{
+	ftick := &fakeTicker{
 		Timer: t,
-		Dur:   d,
-		ch:    make(chan time.Time),
+		ch:    make(chan time.Time, 1),
 		done:  make(chan struct{}),
-	})
+	}
+	go func() {
+		c := t.C()
+		for {
+			select {
+			case ti := <-c:
+				ftick.ch <- ti
+				ftick.Timer.Reset(d)
+			case <-ftick.done:
+				return
+			}
+		}
+	}()
+	return createTicker(ftick)
 }
 
 func (ftick *fakeTicker) C() <-chan time.Time {
-	ftick.once.Do(func() {
-		c := ftick.Timer.C()
-		go func() {
-			for {
-				select {
-				case t := <-c:
-					ftick.ch <- t
-					ftick.Timer.Reset(ftick.Dur)
-				case <-ftick.done:
-					return
-				}
-			}
-		}()
-	})
 	return ftick.ch
 }
 
