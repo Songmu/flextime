@@ -98,6 +98,7 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 		})
 
 		t.Run("Stop", func(t *testing.T) {
+			time.Sleep(time.Millisecond)
 			if ti.Stop() {
 				t.Errorf("Timer should be stopped but active")
 			}
@@ -135,6 +136,7 @@ func runTests(t *testing.T, fn func(t time.Time) func()) {
 		})
 
 		t.Run("Stop", func(t *testing.T) {
+			time.Sleep(time.Millisecond)
 			if ti.Stop() {
 				t.Errorf("Timer should be stopped but active")
 			}
