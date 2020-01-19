@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.4](https://github.com/Songmu/flextime/compare/v0.0.3...v0.0.4) (2020-01-19)
+
+* add test for panic [#5](https://github.com/Songmu/flextime/pull/5) ([Songmu](https://github.com/Songmu))
+* capacity of Timer.C should be 1 [#4](https://github.com/Songmu/flextime/pull/4) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.3](https://github.com/Songmu/flextime/compare/v0.0.2...v0.0.3) (2020-01-19)
 
 * Fix goroutine leak [#3](https://github.com/Songmu/flextime/pull/3) ([Songmu](https://github.com/Songmu))
