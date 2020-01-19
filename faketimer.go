@@ -2,7 +2,6 @@ package flextime
 
 import (
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -13,9 +12,7 @@ type fakeTimer struct {
 
 	resetMu sync.Mutex
 
-	once       sync.Once
 	ch, inch   chan time.Time
-	active     int32
 	stop, done chan struct{}
 	triggerAt  time.Time
 }
@@ -35,26 +32,38 @@ func newFakeTimer(c NowSleeper, d time.Duration, f func()) *fakeTimer {
 }
 
 func (fti *fakeTimer) isActive() bool {
-	return atomic.LoadInt32(&fti.active) > 0
+	if fti.done == nil {
+		return false
+	}
+	select {
+	case <-fti.done:
+		return false
+	default:
+		return true
+	}
 }
 
 func (fti *fakeTimer) C() <-chan time.Time {
 	return fti.ch
 }
 
+// The `send` is called only inside `Reset` and exclusive control is performed on the `Reset` side,
+// so the `send` itself need not do exclusive control.
 func (fti *fakeTimer) send() {
-	fti.once.Do(func() {
-		go func() {
-			for t := range fti.inch {
-				if fti.fun != nil {
-					go fti.fun()
-				} else {
-					fti.ch <- t
-				}
+	fti.done = make(chan struct{})
+
+	go func() {
+		select {
+		case t := <-fti.inch:
+			if fti.fun != nil {
+				go fti.fun()
+			} else {
+				fti.ch <- t
 			}
-		}()
-	})
-	atomic.StoreInt32(&fti.active, 1)
+		case <-fti.done:
+		}
+	}()
+
 	go func() {
 		select {
 		case fti.inch <- func() time.Time {
@@ -63,7 +72,6 @@ func (fti *fakeTimer) send() {
 		}():
 		case <-fti.stop:
 		}
-		atomic.StoreInt32(&fti.active, 0)
 		close(fti.done)
 	}()
 }
@@ -75,7 +83,6 @@ func (fti *fakeTimer) Reset(d time.Duration) bool {
 		d = 0
 	}
 	active := fti.Stop()
-	fti.done = make(chan struct{})
 	if fti.IsTicker && !fti.triggerAt.IsZero() {
 		// to keep base time
 		now := fti.T.Now()
@@ -89,10 +96,13 @@ func (fti *fakeTimer) Reset(d time.Duration) bool {
 }
 
 func (fti *fakeTimer) Stop() bool {
+	// XXX should be locked here?
 	active := fti.isActive()
 	if active {
 		fti.stop <- struct{}{}
 		<-fti.done
+		// The timer may be fired at the same timing as Stop. In that case, struct{}{} could accumulate in
+		// the channel, so draining it here.
 		select {
 		case <-fti.stop:
 		default:
