@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.5](https://github.com/Songmu/flextime/compare/v0.0.4...v0.0.5) (2020-01-19)
+
+* make capacity of faketicker.C 1 [#6](https://github.com/Songmu/flextime/pull/6) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.4](https://github.com/Songmu/flextime/compare/v0.0.3...v0.0.4) (2020-01-19)
 
 * add test for panic [#5](https://github.com/Songmu/flextime/pull/5) ([Songmu](https://github.com/Songmu))
