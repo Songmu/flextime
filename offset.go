@@ -16,12 +16,14 @@ type offsetNS struct {
 	offset time.Duration
 	loc    *time.Location
 
-	mu sync.Mutex
+	mu sync.RWMutex
 }
 
 var _ NowSleeper = (*offsetNS)(nil)
 
 func (oc *offsetNS) Now() time.Time {
+	oc.mu.RLock()
+	defer oc.mu.RUnlock()
 	return time.Now().Add(oc.offset).In(oc.loc)
 }
 
