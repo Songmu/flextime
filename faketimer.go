@@ -26,8 +26,10 @@ func newFakeTimer(c NowSleeper, d time.Duration, f func()) *fakeTimer {
 		ch:   make(chan time.Time, 1),
 		inch: make(chan time.Time),
 		stop: make(chan struct{}, 1),
+		done: make(chan struct{}),
 		fun:  f,
 	}
+	close(fti.done)
 	fti.Reset(d)
 	return fti
 }
@@ -46,12 +48,8 @@ func (fti *fakeTimer) renewDone() chan struct{} {
 }
 
 func (fti *fakeTimer) isActive() bool {
-	done := fti.doneCh()
-	if done == nil {
-		return false
-	}
 	select {
-	case <-done:
+	case <-fti.doneCh():
 		return false
 	default:
 		return true
