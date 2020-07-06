@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.7](https://github.com/Songmu/flextime/compare/v0.0.6...v0.0.7) (2020-07-06)
+
+* fix race [#11](https://github.com/Songmu/flextime/pull/11) ([Songmu](https://github.com/Songmu))
+* add benchmark [#9](https://github.com/Songmu/flextime/pull/9) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.6](https://github.com/Songmu/flextime/compare/v0.0.5...v0.0.6) (2020-01-20)
 
 * use RWMutex in offsetClock [#7](https://github.com/Songmu/flextime/pull/7) ([Songmu](https://github.com/Songmu))
