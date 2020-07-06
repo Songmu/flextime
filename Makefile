@@ -19,7 +19,7 @@ devel-deps:
 
 .PHONY: test
 test:
-	go test
+	go test -race
 
 .PHONY: lint
 lint: devel-deps
