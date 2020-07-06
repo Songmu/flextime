@@ -14,6 +14,7 @@ type fakeTimer struct {
 
 	ch, inch   chan time.Time
 	stop, done chan struct{}
+	doneMu     sync.RWMutex
 	triggerAt  time.Time
 }
 
@@ -31,12 +32,26 @@ func newFakeTimer(c NowSleeper, d time.Duration, f func()) *fakeTimer {
 	return fti
 }
 
+func (fti *fakeTimer) doneCh() chan struct{} {
+	fti.doneMu.RLock()
+	defer fti.doneMu.RUnlock()
+	return fti.done
+}
+
+func (fti *fakeTimer) renewDone() chan struct{} {
+	fti.doneMu.Lock()
+	defer fti.doneMu.Unlock()
+	fti.done = make(chan struct{})
+	return fti.done
+}
+
 func (fti *fakeTimer) isActive() bool {
-	if fti.done == nil {
+	done := fti.doneCh()
+	if done == nil {
 		return false
 	}
 	select {
-	case <-fti.done:
+	case <-done:
 		return false
 	default:
 		return true
@@ -50,7 +65,7 @@ func (fti *fakeTimer) C() <-chan time.Time {
 // The `send` is called only inside `Reset` and exclusive control is performed on the `Reset` side,
 // so the `send` itself need not do exclusive control.
 func (fti *fakeTimer) send() {
-	fti.done = make(chan struct{})
+	done := fti.renewDone()
 
 	go func() {
 		select {
@@ -60,7 +75,7 @@ func (fti *fakeTimer) send() {
 			} else {
 				fti.ch <- t
 			}
-		case <-fti.done:
+		case <-done:
 		}
 	}()
 
@@ -72,7 +87,7 @@ func (fti *fakeTimer) send() {
 		}():
 		case <-fti.stop:
 		}
-		close(fti.done)
+		close(done)
 	}()
 }
 
@@ -102,7 +117,7 @@ func (fti *fakeTimer) Stop() bool {
 	// behaves like that.
 	if active {
 		fti.stop <- struct{}{}
-		<-fti.done
+		<-fti.doneCh()
 		// The Timer may be fired at the same timing as the Stop. Also, the multiple `Reset` may be called
 		// concurrently. In that case, `struct{}{}` could be accumulated in the channel, so drain it here.
 		select {
