@@ -73,10 +73,6 @@ func (t *realTicker) C() <-chan time.Time {
 	return t.t.C
 }
 
-func (t *realTicker) Reset(d time.Duration) {
-	t.t.Reset(d)
-}
-
 func (t *realTicker) Stop() {
 	t.t.Stop()
 }
