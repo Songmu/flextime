@@ -10,6 +10,25 @@ type NowSleeper interface {
 	Sleep(d time.Duration)
 }
 
+type nowSleeperImpl struct {
+	now   func() time.Time
+	sleep func(d time.Duration)
+}
+
+var _ NowSleeper = (*nowSleeperImpl)(nil)
+
+func (ns *nowSleeperImpl) Now() time.Time {
+	return ns.now()
+}
+
+func (ns *nowSleeperImpl) Sleep(d time.Duration) {
+	ns.sleep(d)
+}
+
+func newNowSleeper(now func() time.Time, sleep func(d time.Duration)) NowSleeper {
+	return &nowSleeperImpl{now: now, sleep: sleep}
+}
+
 type fakeClock struct {
 	ns NowSleeper
 }

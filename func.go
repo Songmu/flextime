@@ -17,3 +17,10 @@ func Fix(t time.Time) (restore func()) {
 func Set(t time.Time) (restore func()) {
 	return Switch(newOffsetClock(t))
 }
+
+// NowFunc simply replace the function to get faked current time
+func NowFunc(now func() time.Time) (restore func()) {
+	ns := newNowSleeper(now, time.Sleep)
+	clock := NewFakeClock(ns)
+	return Switch(clock)
+}
