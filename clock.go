@@ -68,5 +68,6 @@ func (ti *Ticker) Stop() {
 // tickerIface has an interface similar to the standard time.Ticker
 type tickerIface interface {
 	C() <-chan time.Time
+	Reset(d time.Duration)
 	Stop()
 }
