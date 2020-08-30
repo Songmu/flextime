@@ -220,3 +220,18 @@ func TestSet_slide(t *testing.T) {
 		t.Errorf("time doesn't slide")
 	}
 }
+
+func TestNowFunc(t *testing.T) {
+	ti := time.Date(2020, 8, 300, 17, 47, 9, 0, time.UTC)
+	restore := flextime.NowFunc(func() time.Time {
+		return ti
+	})
+	defer restore()
+
+	now := flextime.Now()
+	almostSameTime(t, now, ti)
+
+	flextime.Sleep(0)
+	now = flextime.Now()
+	almostSameTime(t, now, ti)
+}
