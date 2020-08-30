@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.1.0](https://github.com/Songmu/flextime/compare/v0.0.7...v0.1.0) (2020-08-30)
+
+* add ticker.Reset to follow Go 1.15 [#12](https://github.com/Songmu/flextime/pull/12) ([Songmu](https://github.com/Songmu))
+* add flextime.NowFunc interface [#13](https://github.com/Songmu/flextime/pull/13) ([Songmu](https://github.com/Songmu))
+
 ## [v0.0.7](https://github.com/Songmu/flextime/compare/v0.0.6...v0.0.7) (2020-07-06)
 
 * fix race [#11](https://github.com/Songmu/flextime/pull/11) ([Songmu](https://github.com/Songmu))

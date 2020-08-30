@@ -1,3 +1,3 @@
 package flextime
 
-const version = "0.0.7"
+const version = "0.1.0"
