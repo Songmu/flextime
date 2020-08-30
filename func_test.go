@@ -170,7 +170,7 @@ func almostSame(g, e time.Time) bool {
 func almostSameTime(t *testing.T, g, e time.Time) {
 	t.Helper()
 	if almostSame(g, e) {
-		t.Errorf("got: %s, expect: %s", g, e)
+		t.Errorf("\n   got: %s\nexpect: %s", g, e)
 	}
 }
 

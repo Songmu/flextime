@@ -60,6 +60,12 @@ func createTicker(ti tickerIface) *Ticker {
 	}
 }
 
+// Reset stops a ticker and resets its period to the specified duration
+// The next tick will arrive after the new period elapses.
+func (ti *Ticker) Reset(d time.Duration) {
+	ti.ticker.Reset(d)
+}
+
 // Stop turns off a ticker.
 func (ti *Ticker) Stop() {
 	ti.ticker.Stop()
@@ -68,5 +74,6 @@ func (ti *Ticker) Stop() {
 // tickerIface has an interface similar to the standard time.Ticker
 type tickerIface interface {
 	C() <-chan time.Time
+	Reset(d time.Duration)
 	Stop()
 }
