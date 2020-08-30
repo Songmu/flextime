@@ -2,8 +2,11 @@
 
 package flextime
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 func (t *realTicker) Reset(d time.Duration) {
-	panic("can't call ticker.Reset before Go 1.14")
+	log.Println("can't call ticker.Reset before Go 1.14")
 }
